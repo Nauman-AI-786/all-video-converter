@@ -1,0 +1,51 @@
+:root{--bg:#f6f4ef;--panel:#fff;--ink:#1c1917;--mute:#6b645c;--line:#e0d9cd;--acc:#0f766e;--accInk:#fff;--bar:#e7e1d6;--err:#b42318}
+:root[data-theme=dark]{--bg:#14110f;--panel:#1f1b18;--ink:#f1ece4;--mute:#a39a8e;--line:#35302b;--acc:#2dd4bf;--accInk:#06201c;--bar:#35302b;--err:#f97066}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Segoe UI",system-ui,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:18px 16px 50px}
+nav{display:flex;align-items:center;gap:16px;margin-bottom:34px}
+.logo{font:700 24px/1 Georgia,serif;flex:1;letter-spacing:-.5px;color:var(--ink);text-decoration:none}
+.logo b{color:var(--acc)}nav a.l{color:var(--mute);text-decoration:none;font-size:14px}nav a.l:hover{color:var(--acc)}
+button,select,input{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--panel);padding:9px 16px;border-radius:9px;cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--acc)}
+.btn.pri{background:var(--acc);color:var(--accInk);border-color:var(--acc);font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,select:focus-visible,#drop:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1{font:700 clamp(28px,5vw,42px)/1.15 Georgia,serif;margin:0 0 10px;letter-spacing:-1px;text-align:center}
+.sub{text-align:center;color:var(--mute);margin:0 0 14px}
+.badge{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.badge span{font-size:13px;border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:3px 12px;color:var(--mute)}
+#drop{border:2px dashed var(--line);border-radius:16px;padding:44px 16px;text-align:center;background:var(--panel);cursor:pointer}
+#drop.over,#drop:hover{border-color:var(--acc)}
+#drop .big{font-size:19px;font-weight:600;margin:0 0 4px}#drop p{margin:0;color:var(--mute);font-size:14px}
+h2{font-size:15px;margin:26px 0 10px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pr{border:1.5px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;cursor:pointer;text-align:left}
+.pr b{display:block}.pr span{font-size:13px;color:var(--mute)}
+.pr.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,var(--panel))}
+details{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+summary{cursor:pointer;font-weight:600}
+.set{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:12px}
+.set label{display:flex;flex-direction:column;gap:4px;color:var(--mute);font-size:13px}
+select,input[type=text]{padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--panel)}
+.chk{flex-direction:row!important;align-items:center;gap:8px!important;padding-top:20px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:20px 0 12px}
+#status{flex:1;color:var(--mute);font-size:13px;min-width:160px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nm{flex:1;min-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.meta{color:var(--mute);font-size:13px}.meta.err{color:var(--err)}
+.pb{height:6px;background:var(--bar);border-radius:3px;margin-top:10px;overflow:hidden}
+.pb i{display:block;height:100%;width:0;background:var(--acc);transition:width .3s}
+a.btn{text-decoration:none;display:inline-block}
+section.info{margin-top:44px}section.info p,section.info li,.doc p,.doc li{color:var(--mute)}
+section.info h3,.doc h2{margin:22px 0 6px;color:var(--ink);text-transform:none;letter-spacing:0;font-size:18px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.steps div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.doc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 22px 22px}
+.doc h1{text-align:left;font-size:30px;margin-top:20px}
+.note{margin-top:18px;border:1px solid var(--line);border-left:4px solid var(--acc);background:var(--panel);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--mute)}
+.note a{color:var(--acc)}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--mute);font-size:13px;text-align:center}
+footer a{color:inherit;margin:0 6px}

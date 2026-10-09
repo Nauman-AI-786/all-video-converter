@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy - Vidmorph</title><link rel="icon" href="icon.svg"><link rel="stylesheet" href="style.css"></head><body><div class="wrap">
+<nav><a class="logo" href="./">Vid<b>morph</b></a><a class="l" href="./">Back to converter</a></nav>
+<div class="doc"><h1>Privacy Policy</h1><p>Last updated: <span class="dt"></span></p>
+<h2>Your files</h2><p>Vidmorph converts files inside your own browser. Your videos and audio are not uploaded to, stored on, or seen by any server we control. When you close or refresh the page, the converted files are gone.</p>
+<h2>What we collect</h2><p>We do not ask for an account, name or email and we do not run analytics, advertising or tracking cookies. The only thing saved on your device is your light/dark theme choice, in your browser local storage.</p>
+<h2>Third parties</h2><p>The converter engine (FFmpeg) and the ZIP library are loaded from public CDNs (jsDelivr and cdnjs). Like any website resource, those providers can see your IP address and browser details when your browser requests them. The site itself is hosted on Hugging Face Spaces, which may keep standard server logs.</p>
+<h2>Contact</h2><p>Questions about this policy: <a href="mailto:REPLACE_WITH_YOUR_EMAIL" style="color:var(--acc)">REPLACE_WITH_YOUR_EMAIL</a>.</p></div>
+<footer>© <span id="yr"></span> Vidmorph · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></footer></div>
+<script>document.getElementById('yr').textContent=new Date().getFullYear();document.querySelectorAll('.dt').forEach(e=>e.textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));
+try{var t=localStorage.getItem('vm-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;}catch(e){}</script></body></html>
