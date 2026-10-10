@@ -61,7 +61,8 @@ const CRF=[20,26,32],QV=[3,6,10],AB=['192k','128k','96k'],MP3Q=[2,4,6],VQ=[6,4,2
 const H264=q=>['-c:v','libx264','-preset','veryfast','-crf',CRF[q],'-pix_fmt','yuv420p'];
 const AAC=q=>['-c:a','aac','-b:a',AB[q]], MP3=q=>['-c:a','libmp3lame','-ar','44100','-q:a',MP3Q[q]];
 
-function args(inp,out,fmt,preset,q,o){
+const args=(...p)=>args0(...p).map(String); // FFmpeg ko sirf text (string) chahiye
+function args0(inp,out,fmt,preset,q,o){
   const a=[]; if(o.start)a.push('-ss',o.start); if(o.end)a.push('-to',o.end); a.push('-i',inp);
   if(AUDIO.includes(fmt)){
     a.push('-vn');
