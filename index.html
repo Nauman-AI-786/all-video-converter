@@ -106,21 +106,26 @@ const fmtSize=b=>b>=1e9?(b/1e9).toFixed(2)+' GB':b>=1e6?(b/1e6).toFixed(1)+' MB'
 const status=t=>$('#status').textContent=t||'';
 const TIME=/^(\d+(\.\d+)?|(\d+:){1,2}\d+(\.\d+)?)$/;
 
-const BASES=['https://cdn.jsdelivr.net/npm','https://fastly.jsdelivr.net/npm','https://gcore.jsdelivr.net/npm','https://unpkg.com'];
+const CDN=['https://cdn.jsdelivr.net/npm','https://fastly.jsdelivr.net/npm','https://gcore.jsdelivr.net/npm','https://unpkg.com'];
+// worker module ko ESM core chahiye; pehle esm, phir umd, phir baqi servers
+const TRIES=[[0,'esm'],[0,'umd'],[1,'esm'],[3,'esm']];
+const CACHE={};
 async function blobFrom(url,type){
+  if(CACHE[url])return CACHE[url];
   const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status+' for '+url);
   const bl=await r.blob();if(bl.size<1000)throw new Error('Empty file from '+url);
-  return URL.createObjectURL(new Blob([bl],{type}));
+  return CACHE[url]=URL.createObjectURL(new Blob([bl],{type}));
 }
 function engine(){
   if(ff)return Promise.resolve(ff);
   if(ffLoading)return ffLoading;
   ffLoading=(async()=>{
-    const {FFmpeg}=FFmpegWASM;let last;
-    for(const B of BASES){
+    const {FFmpeg}=FFmpegWASM;const errs=[];
+    for(const [i,kind] of TRIES){
+      const B=CDN[i];
       try{
-        status('Loading converter engine from '+new URL(B).host+' (first time only, about 30 MB)...');
-        const b=B+'/@ffmpeg/ffmpeg@0.12.10/dist/umd',c=B+'/@ffmpeg/core@0.12.6/dist/umd';
+        status('Loading converter engine ('+new URL(B).host+', '+kind+')... first time only, about 30 MB');
+        const b=B+'/@ffmpeg/ffmpeg@0.12.10/dist/umd',c=B+'/@ffmpeg/core@0.12.6/dist/'+kind;
         const f=new FFmpeg();
         f.on('log',({message})=>{LOG.push(message);if(LOG.length>60)LOG.shift();});
         f.on('progress',({progress})=>{if(cur){cur.p=Math.min(1,Math.max(0,progress));paint(cur);}});
@@ -128,9 +133,9 @@ function engine(){
           coreURL:await blobFrom(c+'/ffmpeg-core.js','text/javascript'),
           wasmURL:await blobFrom(c+'/ffmpeg-core.wasm','application/wasm')});
         ff=f;status('');return f;
-      }catch(e){last=e;console.warn('Engine failed on',B,e);}
+      }catch(e){errs.push(kind+'@'+new URL(B).host+': '+((e&&e.message)||e));console.warn('Engine failed',B,kind,e);}
     }
-    throw new Error('Could not load the converter engine from any server ('+((last&&last.message)||last)+'). Try another network or mobile data, turn off VPN/ad-blocker, and use Chrome.');
+    throw new Error('Could not load the converter engine. '+errs.join(' | ')+'. Try another browser (Chrome/Edge), turn off VPN/ad-blocker, or use mobile data.');
   })();
   ffLoading.catch(()=>{ffLoading=null;status('');});
   return ffLoading;
