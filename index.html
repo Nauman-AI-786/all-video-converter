@@ -54,7 +54,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 const $=s=>document.querySelector(s),MAX=10;
-let items=[],ff=null,ffLoading=null,chain=Promise.resolve(),uid=0,cur=null;
+let LOG=[],items=[],ff=null,ffLoading=null,chain=Promise.resolve(),uid=0,cur=null;
 $('#yr').textContent=new Date().getFullYear();
 const AUDIO=['mp3','aac','m4a','wav','flac','ogg','opus','wma'],EXT={mpeg:'mpg'};
 const CRF=[20,26,32],QV=[3,6,10],AB=['192k','128k','96k'],MP3Q=[2,4,6],VQ=[6,4,2],VPX=[10,18,28];
@@ -115,6 +115,7 @@ function engine(){
     const b='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd';
     const c='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
     const f=new FFmpeg();
+    f.on('log',({message})=>{LOG.push(message);if(LOG.length>60)LOG.shift();});
     f.on('progress',({progress})=>{if(cur){cur.p=Math.min(1,Math.max(0,progress));paint(cur);}});
     await f.load({classWorkerURL:await toBlobURL(b+'/814.ffmpeg.js','text/javascript'),
       coreURL:await toBlobURL(c+'/ffmpeg-core.js','text/javascript'),
@@ -172,7 +173,7 @@ async function convert(it){
   if(bad){it.state='err';it.msg='Check trim times (10 or 01:30) and FPS (a number).';paint(it);refresh();return;}
   const ext=EXT[fmt]||fmt,base=it.file.name.replace(/\.[^.]+$/,'')||'video';
   const inn='in'+it.id,out='out'+it.id+'.'+ext;
-  it.state='run';it.p=0;cur=it;paint(it);status('');
+  it.state='run';it.p=0;cur=it;paint(it);status('');LOG.length=0;
   try{
     const f=await engine();
     await f.writeFile(inn,await FFmpegUtil.fetchFile(it.file));
@@ -185,7 +186,9 @@ async function convert(it){
     await f.deleteFile(inn).catch(()=>{});await f.deleteFile(out).catch(()=>{});
   }catch(e){
     if(it.cancel){it.el.remove();items=items.filter(i=>i!==it);}
-    else{it.state='err';it.msg=(e&&e.message)||'Conversion failed';if(/memory|alloc/i.test(it.msg))it.msg='Not enough browser memory for this file. For big files or movies, use a desktop converter such as HandBrake.';}
+    else{console.error(e,LOG.join('\n'));let m=(e&&e.message)||(typeof e==='string'?e:'')||'Unknown error';
+      const tail=LOG.filter(x=>/error|invalid|unknown|no such|unsupported|encoder|not found|fail/i.test(x)).slice(-2).join(' | ');
+      it.state='err';it.msg=m+(tail?' ['+tail+']':'');if(/memory|alloc/i.test(m))it.msg='Not enough browser memory for this file. For big files or movies, use a desktop converter such as HandBrake.';}
   }
   cur=null;if(items.includes(it))paint(it);refresh();
 }
