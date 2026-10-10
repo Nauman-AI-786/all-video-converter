@@ -106,23 +106,33 @@ const fmtSize=b=>b>=1e9?(b/1e9).toFixed(2)+' GB':b>=1e6?(b/1e6).toFixed(1)+' MB'
 const status=t=>$('#status').textContent=t||'';
 const TIME=/^(\d+(\.\d+)?|(\d+:){1,2}\d+(\.\d+)?)$/;
 
+const BASES=['https://cdn.jsdelivr.net/npm','https://fastly.jsdelivr.net/npm','https://gcore.jsdelivr.net/npm','https://unpkg.com'];
+async function blobFrom(url,type){
+  const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status+' for '+url);
+  const bl=await r.blob();if(bl.size<1000)throw new Error('Empty file from '+url);
+  return URL.createObjectURL(new Blob([bl],{type}));
+}
 function engine(){
   if(ff)return Promise.resolve(ff);
   if(ffLoading)return ffLoading;
-  status('Loading converter engine (first time only, about 30 MB)...');
   ffLoading=(async()=>{
-    const {FFmpeg}=FFmpegWASM,{toBlobURL}=FFmpegUtil;
-    const b='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd';
-    const c='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
-    const f=new FFmpeg();
-    f.on('log',({message})=>{LOG.push(message);if(LOG.length>60)LOG.shift();});
-    f.on('progress',({progress})=>{if(cur){cur.p=Math.min(1,Math.max(0,progress));paint(cur);}});
-    await f.load({classWorkerURL:await toBlobURL(b+'/814.ffmpeg.js','text/javascript'),
-      coreURL:await toBlobURL(c+'/ffmpeg-core.js','text/javascript'),
-      wasmURL:await toBlobURL(c+'/ffmpeg-core.wasm','application/wasm')});
-    ff=f;status('');return f;
+    const {FFmpeg}=FFmpegWASM;let last;
+    for(const B of BASES){
+      try{
+        status('Loading converter engine from '+new URL(B).host+' (first time only, about 30 MB)...');
+        const b=B+'/@ffmpeg/ffmpeg@0.12.10/dist/umd',c=B+'/@ffmpeg/core@0.12.6/dist/umd';
+        const f=new FFmpeg();
+        f.on('log',({message})=>{LOG.push(message);if(LOG.length>60)LOG.shift();});
+        f.on('progress',({progress})=>{if(cur){cur.p=Math.min(1,Math.max(0,progress));paint(cur);}});
+        await f.load({classWorkerURL:await blobFrom(b+'/814.ffmpeg.js','text/javascript'),
+          coreURL:await blobFrom(c+'/ffmpeg-core.js','text/javascript'),
+          wasmURL:await blobFrom(c+'/ffmpeg-core.wasm','application/wasm')});
+        ff=f;status('');return f;
+      }catch(e){last=e;console.warn('Engine failed on',B,e);}
+    }
+    throw new Error('Could not load the converter engine from any server ('+((last&&last.message)||last)+'). Try another network or mobile data, turn off VPN/ad-blocker, and use Chrome.');
   })();
-  ffLoading.catch(()=>{ffLoading=null;status('Could not load the converter engine. Check your internet connection and try again.');});
+  ffLoading.catch(()=>{ffLoading=null;status('');});
   return ffLoading;
 }
 
