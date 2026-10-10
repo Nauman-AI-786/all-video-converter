@@ -87,7 +87,7 @@ function args(inp,out,fmt,preset,q,o){
     '3gp':[['-c:v','mpeg4','-q:v',QV[q]],['-c:a','aac','-ar','44100','-ac','1','-b:a','64k'],[]],
     flv:[['-c:v','flv','-q:v',QV[q]],MP3(q),[]],
     wmv:[['-c:v','wmv2','-q:v',QV[q]],['-c:a','wmav2','-b:a',AB[q]],[]],
-    mpeg:[['-c:v','mpeg2video','-q:v',QV[q]],['-c:a','mp2','-b:a',AB[q]],[]],
+    mpeg:[['-c:v','mpeg2video','-q:v',QV[q],'-r',['24','25','30','50','60'].includes(o.fps)?o.fps:'25'],['-c:a','mp2','-b:a',AB[q]],[]],
     ogv:[['-c:v','libtheora','-q:v',[7,5,3][q]],['-c:a','libvorbis','-q:a',VQ[q]],[]]
   }[fmt];
   return a.concat(V[0],o.mute?['-an']:V[1],V[2],[out]);
@@ -192,7 +192,12 @@ async function convert(it){
   try{
     const f=await engine();
     await f.writeFile(inn,await FFmpegUtil.fetchFile(it.file));
-    const code=await f.exec(args(inn,out,fmt,preset,q,o));
+    let code=await f.exec(args(inn,out,fmt,preset,q,o));
+    if(code!==0&&!AUDIO.includes(fmt)&&fmt!=='gif'&&!o.fps){
+      // kuch encoders ko standard frame rate chahiye: 25 fps ke saath ek dafa dobara koshish
+      LOG.length=0;const a2=args(inn,out,fmt,preset,q,o);a2.splice(a2.length-1,0,'-r','25');
+      code=await f.exec(a2);
+    }
     if(code!==0)throw new Error('This file could not be converted. It may be damaged, or not have a video track for this format.');
     const data=await f.readFile(out);
     if(it.url)URL.revokeObjectURL(it.url);
